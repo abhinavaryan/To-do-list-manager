@@ -3,12 +3,16 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <nlohmann/json.hpp>
 
-struct Task {
+class Task {
+public:
     int id;
     std::string text;
     bool completed;
+
+    Task(int id, const std::string& text, bool completed = false)
+        : id(id), text(text), completed(completed) {}
 };
 
 class TaskManager {
@@ -17,12 +21,13 @@ private:
     int nextId;
 
 public:
-    TaskManager();
+    TaskManager() : nextId(1) {}
+
+    nlohmann::json getTasks();
     Task addTask(const std::string& text);
     bool updateTask(int id, const std::string& text);
     bool deleteTask(int id);
     bool updateTaskCompletion(int id, bool completed);
-    const std::vector<Task>& getTasks() const;
 };
 
 #endif // TASK_MANAGER_H
