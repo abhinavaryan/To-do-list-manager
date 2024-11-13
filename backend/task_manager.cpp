@@ -1,9 +1,15 @@
 #include "task_manager.h"
 
-TaskManager::TaskManager() : nextId(1) {}
+nlohmann::json TaskManager::getTasks() {
+    nlohmann::json jTasks = nlohmann::json::array();
+    for (const auto& task : tasks) {
+        jTasks.push_back({{"id", task.id}, {"text", task.text}, {"completed", task.completed}});
+    }
+    return jTasks;
+}
 
 Task TaskManager::addTask(const std::string& text) {
-    Task newTask = { nextId++, text, false };
+    Task newTask(nextId++, text);
     tasks.push_back(newTask);
     return newTask;
 }
@@ -19,11 +25,12 @@ bool TaskManager::updateTask(int id, const std::string& text) {
 }
 
 bool TaskManager::deleteTask(int id) {
-    for (auto it = tasks.begin(); it != tasks.end(); ++it) {
-        if (it->id == id) {
-            tasks.erase(it);
-            return true;
-        }
+    auto it = std::remove_if(tasks.begin(), tasks.end(), [id](Task& task) {
+        return task.id == id;
+    });
+    if (it != tasks.end()) {
+        tasks.erase(it, tasks.end());
+        return true;
     }
     return false;
 }
@@ -36,8 +43,4 @@ bool TaskManager::updateTaskCompletion(int id, bool completed) {
         }
     }
     return false;
-}
-
-const std::vector<Task>& TaskManager::getTasks() const {
-    return tasks;
 }
